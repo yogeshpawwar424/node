@@ -1,0 +1,29 @@
+version: '3'
+services:
+  server:
+    image: node:20-slim
+    command: node packages/back_end/index.js
+    scale: 6
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./packages:/packages
+      - ./node_modules:/node_modules
+      - ./.env:/.env
+    restart: always
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./conf/rootCA.crt:/etc/ssl/rootCA.crt:ro
+      - ./conf/rootCA.key:/etc/ssl/rootCA.key:ro
+    depends_on:
+      - server
+    ports:
+      - "4000:4000"
+
